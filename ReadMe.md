@@ -4,6 +4,7 @@ provide textured spheres using quads for particles or other simulations
 where visual appearance is not as important as proessing speed
 
 Based on:
+
 	https://godotshaders.com/shader/ray-traced-sphere-for-particle-effects/
 	tranquilmarmot 
 	
