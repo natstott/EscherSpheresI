@@ -5,14 +5,14 @@ where visual appearance is not as important as proessing speed
 
 Based on:
 
-	https://godotshaders.com/shader/ray-traced-sphere-for-particle-effects/
-	tranquilmarmot 
+https://godotshaders.com/shader/ray-traced-sphere-for-particle-effects/
+tranquilmarmot 
 	
-	https://bgolus.medium.com/rendering-a-sphere-on-a-quad-13c92025570c
-	Ben Golus
+https://bgolus.medium.com/rendering-a-sphere-on-a-quad-13c92025570c
+Ben Golus
 	
-	https://github.com/danilw/Godot4-Sphere-as-particle-do-not-use-Sphere-mesh-as-particle
-	DanilW
+https://github.com/danilw/Godot4-Sphere-as-particle-do-not-use-Sphere-mesh-as-particle
+DanilW
 
 General concept-
 for each fragment of a quad, identify the ray direction from the camera that would hit it.
