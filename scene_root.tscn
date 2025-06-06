@@ -1,19 +1,21 @@
-[gd_scene load_steps=33 format=3 uid="uid://dxna3s1o4kvyw"]
+[gd_scene load_steps=35 format=3 uid="uid://dxna3s1o4kvyw"]
 
 [ext_resource type="Script" uid="uid://db7umb1vi74wt" path="res://supporting_point.gd" id="1_w2g3p"]
 [ext_resource type="Texture2D" uid="uid://cp5vxp806hbig" path="res://grid.png" id="2_4s7c2"]
-[ext_resource type="Texture2D" uid="uid://chaqskhvc1q3w" path="res://EscherSphere.png" id="3_hxmnb"]
+[ext_resource type="Texture2D" uid="uid://bic6odufqhm80" path="res://flatsphere.png" id="4_ln32i"]
+[ext_resource type="Shader" uid="uid://b8d4j81gl8ayo" path="res://godotshaderoriginal.gdshader" id="5_rmbpq"]
 [ext_resource type="Shader" uid="uid://v8sxt4rl46xb" path="res://NewTest.gdshader" id="5_s7ejb"]
-[ext_resource type="Shader" uid="uid://c7ixp0te1ivnv" path="res://Impostor2.gdshader" id="6_utn3u"]
 [ext_resource type="Shader" uid="uid://3eirqyvj0oqr" path="res://godotshader.gdshader" id="7_ln32i"]
 [ext_resource type="Texture2D" uid="uid://o36cee7j8cj0" path="res://colourmap.png" id="7_sj6oo"]
 [ext_resource type="Script" uid="uid://dyus7suyt6kgn" path="res://coloursphere_1.gd" id="8_kjfft"]
 [ext_resource type="Script" uid="uid://1ls5pwbeu0k7" path="res://coloursphere_2.gd" id="9_ln32i"]
 
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_rmbpq"]
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_s7ejb"]
 render_priority = 0
 shader = ExtResource("5_s7ejb")
-shader_parameter/texture_albedo = ExtResource("3_hxmnb")
+shader_parameter/texture_albedo = SubResource("CompressedTexture2D_rmbpq")
 shader_parameter/albedo_texture_size = Vector2i(0, 0)
 shader_parameter/point_size = 0.0
 
@@ -22,6 +24,14 @@ material = SubResource("ShaderMaterial_s7ejb")
 
 [sub_resource type="BoxMesh" id="BoxMesh_6twid"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_j2h5p"]
+
+[sub_resource type="TextMesh" id="TextMesh_nrhn6"]
+material = SubResource("StandardMaterial3D_j2h5p")
+text = "Sphere"
+justification_flags = 0
+width = 400.0
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s7ejb"]
 albedo_texture = ExtResource("2_4s7c2")
 
@@ -29,7 +39,8 @@ albedo_texture = ExtResource("2_4s7c2")
 material = SubResource("StandardMaterial3D_s7ejb")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_utn3u"]
-albedo_texture = ExtResource("3_hxmnb")
+transparency = 1
+albedo_texture = ExtResource("4_ln32i")
 
 [sub_resource type="QuadMesh" id="QuadMesh_s7ejb"]
 resource_local_to_scene = true
@@ -51,21 +62,20 @@ material = SubResource("StandardMaterial3D_rmbpq")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_utn3u"]
 render_priority = 0
-shader = ExtResource("5_s7ejb")
-shader_parameter/texture_albedo = ExtResource("7_sj6oo")
-shader_parameter/albedo_texture_size = Vector2i(1024, 1024)
-shader_parameter/point_size = 1.0
+shader = ExtResource("5_rmbpq")
+shader_parameter/use_occlusion = false
+shader_parameter/fix_perspective = false
+shader_parameter/use_light_color = true
+shader_parameter/object_color = Color(0.5, 0.5, 0.5, 1)
+shader_parameter/base_light_color = Color(1, 1, 1, 1)
+shader_parameter/shade_color = Color(0.05, 0.05, 0.05, 1)
+shader_parameter/cel_shading = false
+shader_parameter/cel_shade_threshold = 0.1
+shader_parameter/cel_shade_softness = 0.02
+shader_parameter/sphere_size = 1.0
 
 [sub_resource type="QuadMesh" id="QuadMesh_sj6oo"]
 material = SubResource("ShaderMaterial_utn3u")
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_sj6oo"]
-render_priority = 0
-shader = ExtResource("6_utn3u")
-shader_parameter/texture_albedo = ExtResource("7_sj6oo")
-
-[sub_resource type="QuadMesh" id="QuadMesh_ln32i"]
-material = SubResource("ShaderMaterial_sj6oo")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_rmbpq"]
 render_priority = 0
@@ -85,6 +95,8 @@ albedo_texture = ExtResource("7_sj6oo")
 [sub_resource type="SphereMesh" id="SphereMesh_rmbpq"]
 material = SubResource("StandardMaterial3D_kjfft")
 
+[sub_resource type="Environment" id="Environment_txxno"]
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_txxno"]
 albedo_texture = ExtResource("7_sj6oo")
 
@@ -102,14 +114,24 @@ material = SubResource("StandardMaterial3D_ln32i")
 [node name="Supporting point" type="Node3D" parent="."]
 script = ExtResource("1_w2g3p")
 
-[node name="SphereImpostor" type="MeshInstance3D" parent="Supporting point"]
+[node name="SphereImpostor-Testshader" type="MeshInstance3D" parent="Supporting point"]
 transform = Transform3D(0.999991, 0.00352334, -0.00219163, -0.00352184, 0.999994, 0.00069318, 0.00219405, -0.000685477, 0.999997, 0.0996227, 0, 0)
 mesh = SubResource("QuadMesh_w2g3p")
 skeleton = NodePath("../table")
 
 [node name="table" type="MeshInstance3D" parent="Supporting point"]
-transform = Transform3D(10, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+transform = Transform3D(15, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
 mesh = SubResource("BoxMesh_6twid")
+
+[node name="Label3D" type="Label3D" parent="Supporting point/table"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.85222, 0)
+pixel_size = 0.002
+text = "Sphere"
+font_size = 35
+
+[node name="TextMesh" type="MeshInstance3D" parent="Supporting point/table"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.173089, 2.10374, 0)
+mesh = SubResource("TextMesh_nrhn6")
 
 [node name="Sphere" type="MeshInstance3D" parent="Supporting point"]
 transform = Transform3D(0.939693, -0.34202, 0, 0.296198, 0.813798, -0.5, 0.17101, 0.469846, 0.866025, -4, 0, 0)
@@ -117,7 +139,7 @@ mesh = SubResource("SphereMesh_4s7c2")
 skeleton = NodePath("../..")
 
 [node name="SimpleQuad" type="MeshInstance3D" parent="Supporting point"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.57084, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.57092, -0.0012213, -0.00252128)
 mesh = SubResource("QuadMesh_s7ejb")
 
 [node name="QuadplusSphere" type="MeshInstance3D" parent="Supporting point"]
@@ -131,24 +153,22 @@ mesh = SubResource("SphereMesh_ln32i")
 transform = Transform3D(1, 0, -1.74846e-07, 0, 1, 0, 1.74846e-07, 0, 1, 2, 0, 0)
 mesh = SubResource("QuadMesh_sj6oo")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Supporting point"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.48015, 0, 0)
-mesh = SubResource("QuadMesh_ln32i")
-
 [node name="GodotShader" type="MeshInstance3D" parent="Supporting point"]
-transform = Transform3D(0.99816, 0, 0.0606304, 0, 1, 0, -0.0606304, 0, 0.99816, 4.44377, 0, 0)
+transform = Transform3D(0.99816, 0, 0.0606304, 0, 1, 0, -0.0606304, 0, 0.99816, 3.34954, 0, 0)
 mesh = SubResource("QuadMesh_txxno")
+
+[node name="coloursphere1" type="MeshInstance3D" parent="Supporting point"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.07052, -0.0451146, -0.136755)
+mesh = SubResource("SphereMesh_rmbpq")
+skeleton = NodePath("../..")
+script = ExtResource("8_kjfft")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.01344, 6.41163)
+environment = SubResource("Environment_txxno")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.89292, 5.38777)
-
-[node name="coloursphere1" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.53615, 0, -0.136755)
-mesh = SubResource("SphereMesh_rmbpq")
-script = ExtResource("8_kjfft")
 
 [node name="coloursphere2" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.10309, 0, 3)

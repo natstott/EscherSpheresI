@@ -22,7 +22,7 @@ varying mat4 passmodelviewmatrix;
 
 
 void vertex() {
-    
+
 		// Billboard Mode: Enabled
 	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(
 			MAIN_CAM_INV_VIEW_MATRIX[0],
