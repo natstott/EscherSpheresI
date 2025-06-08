@@ -114,7 +114,7 @@ vec4 sphere_image(vec3 rd, vec3 ro, vec3 sp, float sp_sz)
     vec3 col = vec3(0.0);
 
     float tmin = 1e10;
-    vec3 nor = vec3(0.);
+    vec3 normal = vec3(0.);
     float occ = 1.0;
 	float a = 0.;
 
@@ -126,8 +126,8 @@ vec4 sphere_image(vec3 rd, vec3 ro, vec3 sp, float sp_sz)
     if (t2 > 0.002 && t2 < tmin) {
         tmin = t2;
         vec3 pos = ro + t2 * rd;
-		nor = normalize(pos - sph.xyz);
-        occ = 0.5 + 0.5 * nor.y;
+		normal = normalize(pos - sp);
+        occ = 0.5 + 0.5 * normal.y;
 	}
 
     if (tmin < 1000.0) {
@@ -137,18 +137,18 @@ vec4 sphere_image(vec3 rd, vec3 ro, vec3 sp, float sp_sz)
 		a = 1.;
 
 	 	// ray sphere intersection
-		float rayHit = sphere_intersect(ro, rd, vec4(0,0,0,1.10));
+		//float rayHit = sphere_intersect(ro, rd, vec4(0,0,0,1.10));
 		// calculate object space position from ray, front hit ray length, and ray origin
-		vec3 surfacePos = pos; //rd * rayHit + ro;
-		// object space surface normal
-		vec3 normal = normalize(surfacePos);
-		float phi = asin(normal.x/sp_sz ) / (PI);
+		vec3 surfacePos = pos-sp; //rd * rayHit + ro;
+		// object space surface normal;
+		float phi = atan(normal.x/normal.z ) / (2.0*PI);
+		//float phi = asin(normal.x/sp_sz ) / (PI);
 		float phi_frac = fract(phi); //frac is fractional part
 		 float theta =acos(-normal.y)/(PI);
 		vec2 uv = vec2(
 			 phi,
 			theta
-			)*testscaler+vec2(0.5);
+			)*testscaler+vec2(0.5,0.0);
 		col = texture(texture_albedo, uv).rgb;
 	
     }

@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://dxna3s1o4kvyw"]
+[gd_scene load_steps=38 format=3 uid="uid://dxna3s1o4kvyw"]
 
 [ext_resource type="Script" uid="uid://db7umb1vi74wt" path="res://supporting_point.gd" id="1_w2g3p"]
 [ext_resource type="Texture2D" uid="uid://cp5vxp806hbig" path="res://grid.png" id="2_4s7c2"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://o36cee7j8cj0" path="res://colourmap.png" id="7_sj6oo"]
 [ext_resource type="Script" uid="uid://dyus7suyt6kgn" path="res://coloursphere_1.gd" id="8_kjfft"]
 [ext_resource type="Script" uid="uid://1ls5pwbeu0k7" path="res://coloursphere_2.gd" id="9_ln32i"]
+[ext_resource type="Shader" uid="uid://dv5obie6i1g4c" path="res://BGolusShader.gdshader" id="9_rmbpq"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_rmbpq"]
 
@@ -83,7 +84,7 @@ shader = ExtResource("7_ln32i")
 shader_parameter/use_occlusion = false
 shader_parameter/texture_albedo = ExtResource("7_sj6oo")
 shader_parameter/fix_perspective = true
-shader_parameter/testscaler = 7.322
+shader_parameter/testscaler = 1.0
 shader_parameter/sphere_size = 1.0
 
 [sub_resource type="QuadMesh" id="QuadMesh_txxno"]
@@ -94,6 +95,15 @@ albedo_texture = ExtResource("7_sj6oo")
 
 [sub_resource type="SphereMesh" id="SphereMesh_rmbpq"]
 material = SubResource("StandardMaterial3D_kjfft")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_txxno"]
+render_priority = 0
+shader = ExtResource("9_rmbpq")
+shader_parameter/Color = Color(0.435294, 0.764706, 0.454902, 1)
+shader_parameter/_MainTex = ExtResource("7_sj6oo")
+
+[sub_resource type="QuadMesh" id="QuadMesh_j2h5p"]
+material = SubResource("ShaderMaterial_txxno")
 
 [sub_resource type="Environment" id="Environment_txxno"]
 
@@ -114,7 +124,7 @@ material = SubResource("StandardMaterial3D_ln32i")
 [node name="Supporting point" type="Node3D" parent="."]
 script = ExtResource("1_w2g3p")
 
-[node name="SphereImpostor-Testshader" type="MeshInstance3D" parent="Supporting point"]
+[node name="NewTestshader" type="MeshInstance3D" parent="Supporting point"]
 transform = Transform3D(0.999991, 0.00352334, -0.00219163, -0.00352184, 0.999994, 0.00069318, 0.00219405, -0.000685477, 0.999997, 0.0996227, 0, 0)
 mesh = SubResource("QuadMesh_w2g3p")
 skeleton = NodePath("../table")
@@ -149,19 +159,23 @@ mesh = SubResource("QuadMesh_kjfft")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Supporting point/QuadplusSphere"]
 mesh = SubResource("SphereMesh_ln32i")
 
-[node name="QuadTester" type="MeshInstance3D" parent="Supporting point"]
-transform = Transform3D(1, 0, -1.74846e-07, 0, 1, 0, 1.74846e-07, 0, 1, 2, 0, 0)
+[node name="GodotOriginal" type="MeshInstance3D" parent="Supporting point"]
+transform = Transform3D(1, 0, -1.74846e-07, 0, 1, 0, 1.74846e-07, 0, 1, 2.01227, 0, 0)
 mesh = SubResource("QuadMesh_sj6oo")
 
 [node name="GodotShader" type="MeshInstance3D" parent="Supporting point"]
 transform = Transform3D(0.99816, 0, 0.0606304, 0, 1, 0, -0.0606304, 0, 0.99816, 3.34954, 0, 0)
 mesh = SubResource("QuadMesh_txxno")
 
-[node name="coloursphere1" type="MeshInstance3D" parent="Supporting point"]
+[node name="ActualSphere" type="MeshInstance3D" parent="Supporting point"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.07052, -0.0451146, -0.136755)
 mesh = SubResource("SphereMesh_rmbpq")
 skeleton = NodePath("../..")
 script = ExtResource("8_kjfft")
+
+[node name="BGolusShader" type="MeshInstance3D" parent="Supporting point"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.73261, 0, 0)
+mesh = SubResource("QuadMesh_j2h5p")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.01344, 6.41163)

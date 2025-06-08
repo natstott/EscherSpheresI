@@ -25,3 +25,9 @@ to find the right texture UVs to use. Accounting for rotation.
 
 All solved by Ben Golus shader in Unity, but mapping the right transforms in Godot is
 proving difficult.
+
+Shader Godot Original is the DanilW shader
+
+GodotShader is updated to include a texture
+
+BGolus shader is work in progress trying to convert the HLSL Unity shader into Godot

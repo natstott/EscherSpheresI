@@ -17,30 +17,25 @@ render_mode
 
 
 
-            struct appdata
-            {
-                vec4 vertex;
-                uint UNITY_VERTEX_INPUT_INSTANCE_ID;
-            };
 
 // was struc v2f
         varying       vec4 pos;
         varying       vec3 rayDir;
         varying     vec3 rayOrigin;
-        varying     uint UNITY_VERTEX_INPUT_INSTANCE_ID;
+//        varying     uint UNITY_VERTEX_INPUT_INSTANCE_ID; //may need something later!
+		varying mat4 modelviewmatrix;
 
 
 
             // common vertex function for all passes
             void vertex ()
             {
-
-
                 // check if the current projection is orthographic or not from the current projection matrix
                 bool isOrtho = (PROJECTION_MATRIX[3].z == 1.0);
 
                 // viewer position, equivalent to _WorldSpaceCAmeraPos.xyz, but for the current view
                 mat4 MATRIX_IVIEW=inverse(VIEW_MATRIX);
+				modelviewmatrix=MODELVIEW_MATRIX;
 				vec3 worldSpaceViewerPos = vec3(
 					MATRIX_IVIEW[0].w,
 					MATRIX_IVIEW[1].w,
@@ -80,7 +75,8 @@ render_mode
 					MODELVIEW_MATRIX[2].z
 				)); //MODELVIEW_MATRIX.m02_m12_m22
 
-                vec3 scale = vec3(scalex,scaley,scalez);
+                vec3 scale = vec3(1.0);//vec3(scalex,scaley,scalez);
+
                 float maxScale = max(abs(scale.x), max(abs(scale.y), abs(scale.z)));
 
                 // calculate a camera facing rotation matrix
@@ -95,11 +91,11 @@ render_mode
 
                 // use the max scale to figure out how big the quad needs to be to cover the entire sphere
                 // we're using a hardcoded object space radius of 0.5 in the fragment shader
-                float maxRadius = maxScale * 0.5;
+                float maxRadius = 1.0;//maxScale * 0.5;
 
                 // find the radius of a cone that contains the sphere with the point at the camera and the base at the pivot of the sphere
                 // this means the quad is always scaled to perfectly cover only the area the sphere is visible within
-                float quadScale = maxScale;
+                float quadScale = 1.0;//maxScale;
                 if (!isOrtho)
                 {
                     // get the sine of the right triangle with the hyp of the sphere pivot distance and the opp of the sphere radius
@@ -133,13 +129,10 @@ render_mode
 
                 // output object space ray direction and origin
 				mat4 unity_WorldToObject= inverse(MODEL_MATRIX);
-                rayDir = (vec4(worldSpaceRayDir, 0.0)* unity_WorldToObject).xyz;
+                rayDir = (unity_WorldToObject*vec4(worldSpaceRayDir, 0.0) ).xyz;
                 rayOrigin = (unity_WorldToObject*vec4(worldSpaceRayOrigin, 1.0)).xyz;
 
                 // offset towards the camera for use with conservative depth
-            #if defined(USE_CONSERVATIVE_DEPTH)
-                worldPos += worldSpaceRayDir / dot(normalize(worldSpacePivotToView), worldSpaceRayDir) * maxRadius;
-            #endif
 
                 //pos = (UnityWorldToClipPos*worldPos).xyz;
 				pos = VIEW_MATRIX*PROJECTION_MATRIX*vec4(worldPos,1.0);
@@ -159,225 +152,58 @@ render_mode
                 return -b - h;
             }
 
-            #if defined(UNITY_PASS_FORWARDBASE) || defined(UNITY_PASS_FORWARDADD)
-            // dummy struct to allow shadow macro to work
-            struct shadowInput {
-                SHADOW_COORDS(0)
-            };
-
-            half3 _LightColor0;
-
-            half3 _Color;
-            sampler2D _MainTex;
-            samplerCUBE _CubeTex;
 
             // reuse the fragment shader for both forward base and forward add passes
-            fixed4 frag_forward (v2f i
-            #if defined(USE_CONSERVATIVE_DEPTH)
-                , out float outDepth : SV_DepthLessEqual
-            #else
-            // the device probably can't use conservative depth
-              , out float outDepth : SV_Depth
-            #endif
-                ) : SV_Target
+            void fragment ()
             {
                 // instancing
                 // even though we're not using any instanced properties
                 // we are using the MODELVIEW_MATRIX transform matrix
                 // and in instanced shaders, that needs the instance id
-                UNITY_SETUP_INSTANCE_ID(i);
-
                 // ray origin
-                vec3 rayOrigin = i.rayOrigin;
+                //vec3 rayOrigin = i.rayOrigin; not needed as no structure passed.
 
                 // normalize ray vector
-                vec3 rayDir = normalize(i.rayDir);
+                vec3 NormrayDir = normalize(rayDir);
 
                 // ray sphere intersection
-                float rayHit = sphIntersect(rayOrigin, rayDir, vec4(0,0,0,0.5));
+                float rayHit = sphIntersect(rayOrigin, NormrayDir, vec4(0,0,0,1.0));
 
-            #if !defined(_MSAABEHAVIOUR_ALPHATOCOVERAGE)
+            if (rayHit<-0.0)
                 // sphere intersection function returns -1 if there's no intersection
-                clip(rayHit);
-            #endif
+                discard;
 
                 // cheap way to reduce mip map artifacts on edge
                 // not 100% accurate, but close enough that it'd be hard to notice
-                rayHit = rayHit < 0.0 ? dot(rayDir, -rayOrigin) : rayHit;
+                rayHit = rayHit < 0.0 ? dot(NormrayDir, -rayOrigin) : rayHit;
 
                 // calculate object space position from ray, front hit ray length, and ray origin
-                vec3 surfacePos = rayDir * rayHit + rayOrigin;
+                vec3 surfacePos = NormrayDir * rayHit + rayOrigin;
 
                 // object space surface normal
                 vec3 normal = normalize(surfacePos);
 
-            #if defined(_MAPPING_CUBEMAP)
-                // cubemap uvw
-                vec3 uvw = surfacePos;
-
-                // swizzle & invert cubemap UVW so it matches equirectangular UVs
-                uvw.xz = -uvw.zx;
-
-                // sample cube map
-                fixed4 col = texCUBE(_CubeTex, uvw);
-            #else
                 // -0.5 to 0.5 range
-                float phi = atan2(normal.z, normal.x) / (UNITY_PI * 2.0);
 
+                float phi = atan(normal.z, normal.x) / 6.28318;
                 // 0.0 to 1.0 range
-                float phi_frac = frac(phi);
-
+                float phi_frac = fract(phi);
                 // negate the y because acos(-1.0) = PI, acos(1.0) = 0.0
-                float theta = acos(-normal.y) / UNITY_PI;
-
+                float theta = acos(-normal.y) / 3.14159265;
                 // construct the uvs, selecting the phi to use based on the derivatives
-                float2 uv = float2(
+                vec2 uv = vec2(
                     fwidth(phi) < fwidth(phi_frac) - 0.001 ? phi : phi_frac,
                     theta
                     );
 
-            #if MSAA_SUPER_SAMPLE
-                // sample the equirectangular texture with an lod bias
-                half4 col = tex2Dbias (_MainTex, vec4(uv, 0, -1));
-            #else
-                // sample the equirectangular texture
-                half4 col = tex2D (_MainTex, uv);
-            #endif // MSAA_SUPER_SAMPLE
-            #endif // _MAPPING_CUBEMAP
-
+                vec4 col = texture(_MainTex, uv);
                 // what shader is complete without a little color tinting?
-                col.rgb *= _Color.rgb;
+                //col.rgb *= Color.rgb;
 
                 // world space position and clip space position
-                vec3 worldPos = mul(MODELVIEW_MATRIX, vec4(surfacePos, 1.0));
-                vec4 clipPos = UnityWorldToClipPos(vec4(worldPos, 1.0));
+                vec3 worldPos = (modelviewmatrix*vec4(surfacePos, 1.0)).xyz;
+                vec4 clipPos = VIEW_MATRIX*PROJECTION_MATRIX*(vec4(worldPos, 1.0));
 
-                // stuff for directional shadow receiving
-            #if defined (SHADOWS_SCREEN)
-                // setup shadow struct for screen space shadows
-                shadowInput shadowIN;
-            #if defined(UNITY_NO_SCREENSPACE_SHADOWS)
-                // mobile directional shadow
-                shadowIN._ShadowCoord = mul(unity_WorldToShadow[0], vec4(worldPos, 1.0));
-            #else
-                // screen space directional shadow
-                shadowIN._ShadowCoord = ComputeScreenPos(clipPos);
-            #endif // UNITY_NO_SCREENSPACE_SHADOWS
-            #else
-                // no shadow, or no directional shadow
-                float shadowIN = 0;
-            #endif // SHADOWS_SCREEN
 
-                // basic lighting
-                half3 worldNormal = UnityObjectToWorldNormal(normal);
-                half3 worldLightDir = UnityWorldSpaceLightDir(worldPos);
-                half ndotl = saturate(dot(worldNormal, worldLightDir));
-
-                // get shadow, attenuation, and cookie
-                UNITY_LIGHT_ATTENUATION(atten, shadowIN, worldPos);
-
-                // per pixel lighting
-                half3 lighting = _LightColor0 * ndotl * atten;
-
-            #if defined(UNITY_SHOULD_SAMPLE_SH)
-                // ambient lighting
-                half3 ambient = ShadeSH9(vec4(worldNormal, 1));
-                lighting += ambient;
-
-            #if defined(VERTEXLIGHT_ON)
-                // "per vertex" non-important lights
-                half3 vertexLighting = Shade4PointLights(
-                unity_4LightPosX0, unity_4LightPosY0, unity_4LightPosZ0,
-                unity_LightColor[0].rgb, unity_LightColor[1].rgb, unity_LightColor[2].rgb, unity_LightColor[3].rgb,
-                unity_4LightAtten0, worldPos, worldNormal);
-
-                lighting += vertexLighting;
-            #endif // VERTEXLIGHT_ON
-            #endif // UNITY_SHOULD_SAMPLE_SH
-
-                // apply lighting
-                col.rgb *= lighting;
-
-                // output modified depth
-                outDepth = clipPos.z / clipPos.w;
-
-            #if !defined(UNITY_REVERSED_Z)
-                // openGL platforms need the clip space to be rescaled
-                outDepth = outDepth * 0.5 + 0.5;
-            #endif
-
-            #if defined(_MSAABEHAVIOUR_ALPHATOCOVERAGE)
-                // ray to sphere origin distance
-                float rayToPointDist = length(rayDir * dot(rayDir, -rayOrigin) + rayOrigin);
-
-                // fwidth gets the sum of the ddx & ddy partial derivatives
-                // float fDist = fwidth(rayToPointDist);
-
-                // fwidth is a coarse approximation of this
-                float fDist = length(float2(ddx(rayToPointDist), ddy(rayToPointDist)));
-
-                // sharpen ray to point distance
-                // centered on sphere radius, +/- half a pixel based on derivatives
-                float alpha = (0.5 - rayToPointDist) / max(fDist, 0.0001) + 0.5;
-
-                // clip based on sharpened alpha
-                clip(alpha);
-
-                // clamp alpha to a 0 to 1 range and apply to color
-                col.a *= saturate(alpha);
-            #endif
-
-                // fog
-                float fogCoord = clipPos.z;
-            #if (SHADER_TARGET < 30) || defined(SHADER_API_MOBILE)
-                // calculate fog falloff and creates a unityFogFactor variable to hold it
-                UNITY_CALC_FOG_FACTOR(fogCoord);
-                fogCoord = unityFogFactor;
-            #endif
-                UNITY_APPLY_FOG(fogCoord, col);
-
-                return col;
+                ALBEDO=  col.rgb;
             }
-            #endif
-
-            fixed4 frag_shadow (v2f i
-            #if defined(USE_CONSERVATIVE_DEPTH)
-                , out float outDepth : SV_DepthLessEqual
-            #else
-            // the device probably can't use conservative depth
-              , out float outDepth : SV_Depth
-            #endif
-                ) : SV_Target
-            {
-                UNITY_SETUP_INSTANCE_ID(i);
-
-                // ray origin
-                vec3 rayOrigin = i.rayOrigin;
-
-                // normalize ray vector
-                vec3 rayDir = normalize(i.rayDir);
-
-                // ray sphere intersection
-                float rayHit = sphIntersect(rayOrigin, rayDir, vec4(0,0,0,0.5));
-
-                // above function returns -1 if there's no intersection
-                clip(rayHit);
-
-                // calculate object space position from ray, front hit ray length, and ray origin
-                vec3 surfacePos = rayDir * rayHit + rayOrigin;
-
-                // output modified depth
-                vec4 clipPos = UnityClipSpaceShadowCasterPos(surfacePos, surfacePos);
-                clipPos = UnityApplyLinearShadowBias(clipPos);
-                outDepth = clipPos.z / clipPos.w;
-
-            #if !defined(UNITY_REVERSED_Z)
-                // openGL platforms need the clip space to be rescaled
-                outDepth = outDepth * 0.5 + 0.5;
-            #endif
-
-                return 0;
-            }
-
-
-}
