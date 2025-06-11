@@ -89,72 +89,6 @@ float sphere_intersect(in vec3 ro, in vec3 rd, in vec4 sph)
 	return -b - sqrt(h);
 }
 
-/**
- * Get color for sphere at position.
- *
- * @param rd Ray direction.
- * XXX@param lght Light direction.
- * @param ro Ray origin.
- * @param sp Sphere position.
- * @param sp_sz Sphere size.
- * @XXXparam bcol Base color.
- * @return Color.
-			col = sphere_image(
-				normalize(rd),
-				camera_ray_origin,
-				sphere_position * sp_size,
-				sphere_size
-				
-			);
- */
-vec4 sphere_image(vec3 rd, vec3 ro, vec3 sp, float sp_sz)
-{
-    vec4 sph = vec4(sp, sp_sz);
-    vec3 col = vec3(0.0);
-
-    float tmin = 1e10;
-    vec3 normal = vec3(0.);
-    float occ = 1.0;
-	float a = 0.;
-
-    float t2 = sphere_intersect(ro, rd, sph);
-
-	// to fix black color
-	t2 = max(t2, 0.001);
-
-    if (t2 > 0.002 && t2 < tmin) {
-        tmin = t2;
-        vec3 pos = ro + t2 * rd;
-		normal = normalize(pos - sp);
-        occ = 0.5 + 0.5 * normal.y;
-	}
-
-    if (tmin < 1000.0) {
-        vec3 pos = ro + tmin * rd;
-		col = vec3(1.0);
-		a = 1.;
-
-	 	// ray sphere intersection
-		//float rayHit = sphere_intersect(ro, rd, vec4(0,0,0,1.10));
-		// calculate object space position from ray, front hit ray length, and ray origin
-		vec3 surfacePos = pos-sp; //rd * rayHit + ro;
-		// object space surface normal;
-		float phi = atan(normal.x/normal.z ) / (2.0*PI);
-		//float phi = asin(normal.x/sp_sz ) / (PI);
-		float phi_frac = fract(phi); //frac is fractional part
-		 float theta =acos(-normal.y)/(PI);
-		vec2 uv = vec2(
-			 phi,
-			theta
-			)*testscaler+vec2(0.5,0.0);
-		col = texture(texture_albedo, uv).rgb;
-	
-    }
-
-
-    return vec4(col, a);
-}
-
 void fragment() {
 	
 	METALLIC = 0.001;
@@ -165,35 +99,57 @@ void fragment() {
 	// and to fix Compatibility render in Godot 4.
 	// If you do not need shadows and compatibility - remove this
 	{
-		vec4 col = vec4(0.);
 		vec3 rd = normalize((mcivm * vec4(normalize(-VIEW), 0.0)).xyz);
 		//vec3 lgt = vec3(0., 1., 0.);
-		/*
-		if (fix_perspective) {
-			col = sphere_image(
-				normalize(rd),
-				camera_ray_origin,
-				sphere_position * sp_size,
-				sphere_size - (
-					sphere_size * 0.999 * (
-						1. -
-						min(
-							length(sphere_position - mcivm[3].xyz) / (2. / sp_size),
-							1.
-						)
-					)
-				)
-			);
-		} else { */
+		vec2 uv;
+
+/*
 			col = sphere_image(
 				normalize(rd),
 				camera_ray_origin,
 				sphere_position * sp_size,
 				sphere_size
 				
-			);
-		//}
-		if (col.w<0.1) discard;
+			); */
+    vec4 sph = vec4(sphere_position*sp_size, sphere_size);
+    vec3 col = vec3(1.0);
+
+    float tmin = 1e10;
+    vec3 normal = vec3(0.);
+    float occ = 1.0;
+	float a = 0.;
+
+    float t2 = sphere_intersect(camera_ray_origin, rd, sph);
+	if (t2<-0.5) discard;
+	// to fix black color
+	//t2 = max(t2, 0.001);
+        tmin = t2;
+        vec3 pos = camera_ray_origin + t2 * rd;
+		normal = normalize(pos - sphere_position*sp_size);
+        occ = 0.5 + 0.5 * normal.y;
+      
+		a = 1.;
+	 	// ray sphere intersection
+		//float rayHit = sphere_intersect(camera_ray_origin, rd, vec4(0,0,0,1.10));
+		// calculate object space position from ray, front hit ray length, and ray origin
+		vec3 surfacePos = pos-sphere_position; //rd * rayHit + ro;
+		// object space surface normal;
+		float phi = atan(normal.x/normal.z ) / (2.0*PI);
+		//float phi = asin(normal.x/sp_sz ) / (PI);
+		float phi_frac = fract(phi);
+		//frac is fractional part
+		 float theta =acos(-normal.y)/(PI);
+		 uv = vec2(
+			 phi,
+			theta
+			)*testscaler+vec2(0.5,0.0);
+	
+		col = texture(texture_albedo, uv).rgb;
+
+		
+		
+		
 		ALBEDO=col.rgb;
+		NORMAL=normal;
 	}
 }

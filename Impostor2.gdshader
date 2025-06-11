@@ -56,8 +56,6 @@ vec3 pos=NODE_POSITION_WORLD;
 vec3 cameravector=CAMERA_POSITION_WORLD-pos;
 
 
-
-
 	vec2 xy=UV*2.0-vec2(1.0);
 	if (length(xy)>1.0) discard;
 	float widthy=sqrt(1.0-xy.y*xy.y);

@@ -29,12 +29,13 @@ void vertex() {
 }
 
 void fragment() {
-
+// Simply maps a square texture as if it was a sphere - no fancy normal calcs or anything.
 	vec2 xy=UV*2.0-vec2(1.0);
 	if (length(xy)>1.0) discard;
-	float widthy=sqrt(1.0-xy.y*xy.y);
+	float widthy=sqrt(1.0-xy.y*xy.y); // sphere radius at height y
 	float longitude=asin(xy.x/widthy);
 	vec2 base_uv = vec2(0.5+longitude/6.283, UV.y);
+	NORMAL=vec3(xy.x/widthy,xy.y,cos(longitude));
 
 	vec4 albedo_tex = texture(texture_albedo, base_uv);
 	ALBEDO = albedo_tex.rgb;
