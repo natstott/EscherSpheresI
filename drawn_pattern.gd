@@ -7,7 +7,7 @@ func _ready() -> void:
 	var number_rows=64 #columns the same?
 	var rowheight=imagesize.y/number_rows
 	for i in range(number_rows):
-		image.fill_rect(Rect2i(0,i*rowheight,imagesize.x,4),Color.WHITE)
+		image.fill_rect(Rect2i(0,i*rowheight,imagesize.x,2),Color.WHITE)
 		for j in range(number_rows):
 			var linewidth=16-12*sin((PI*float(i))/float(number_rows))
 			image.fill_rect(Rect2i(j*rowheight-linewidth/2,i*rowheight,linewidth,rowheight),Color.WHITE)
@@ -17,4 +17,4 @@ func _ready() -> void:
 	image.save_png(filename)
 	var texture = ImageTexture.create_from_image(image)
 	print("tex: ", texture)
-	self.get_active_material(0).set_shader_parameter("texture_albedo", texture)
+	self.get_active_material(0).set_shader_parameter("equirect_texture", texture)

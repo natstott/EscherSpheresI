@@ -1,17 +1,18 @@
-[gd_scene load_steps=39 format=3 uid="uid://dxna3s1o4kvyw"]
+[gd_scene load_steps=42 format=3 uid="uid://dxna3s1o4kvyw"]
 
 [ext_resource type="Script" uid="uid://db7umb1vi74wt" path="res://supporting_point.gd" id="1_w2g3p"]
 [ext_resource type="Texture2D" uid="uid://cp5vxp806hbig" path="res://grid.png" id="2_4s7c2"]
 [ext_resource type="Shader" uid="uid://c7ixp0te1ivnv" path="res://Impostor2.gdshader" id="2_ln32i"]
 [ext_resource type="Texture2D" uid="uid://bic6odufqhm80" path="res://flatsphere.png" id="4_ln32i"]
-[ext_resource type="Shader" uid="uid://v8sxt4rl46xb" path="res://NewTest.gdshader" id="5_s7ejb"]
 [ext_resource type="Shader" uid="uid://b8d4j81gl8ayo" path="res://godotshaderoriginal.gdshader" id="6_txxno"]
 [ext_resource type="Texture2D" uid="uid://o36cee7j8cj0" path="res://colourmap.png" id="7_sj6oo"]
 [ext_resource type="Shader" uid="uid://di858k6mdugbt" path="res://godotshader2.gdshader" id="7_txxno"]
 [ext_resource type="Script" uid="uid://b1d06gga604ye" path="res://drawn_pattern.gd" id="9_ln32i"]
+[ext_resource type="Shader" uid="uid://bh73bc0ym5ngb" path="res://godotshader5.gdshader" id="9_nrhn6"]
 [ext_resource type="Shader" uid="uid://dv5obie6i1g4c" path="res://BGolusShader.gdshader" id="9_rmbpq"]
 [ext_resource type="Texture2D" uid="uid://b7tma4xvw6l4i" path="res://grid2.png" id="10_rmbpq"]
 [ext_resource type="Script" uid="uid://c6pec1dxl3wq6" path="res://CameraMove.gd" id="12_j2h5p"]
+[ext_resource type="Script" uid="uid://cs1npsglwul46" path="res://godot_shader_3.gd" id="13_r0glx"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_s7ejb"]
 render_priority = 0
@@ -97,27 +98,36 @@ material = SubResource("StandardMaterial3D_kjfft")
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_txxno"]
 render_priority = 0
 shader = ExtResource("9_rmbpq")
-shader_parameter/Color = Color(0.435294, 0.764706, 0.454902, 1)
+shader_parameter/Color = Color(0.865916, 0.57223, 0.701564, 1)
 shader_parameter/_MainTex = ExtResource("7_sj6oo")
 
 [sub_resource type="QuadMesh" id="QuadMesh_j2h5p"]
 material = SubResource("ShaderMaterial_txxno")
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_j2h5p"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nrhn6"]
 render_priority = 0
-shader = ExtResource("5_s7ejb")
-shader_parameter/texture_albedo = ExtResource("2_4s7c2")
-shader_parameter/albedo_texture_size = Vector2i(0, 0)
-shader_parameter/point_size = 0.0
+shader = ExtResource("9_nrhn6")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/sphere_radius = 0.5
 
-[sub_resource type="QuadMesh" id="QuadMesh_nrhn6"]
-material = SubResource("ShaderMaterial_j2h5p")
+[sub_resource type="SphereMesh" id="SphereMesh_q7rar"]
+material = SubResource("ShaderMaterial_nrhn6")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_txxno"]
 albedo_texture = ExtResource("10_rmbpq")
 
 [sub_resource type="SphereMesh" id="SphereMesh_j2h5p"]
 material = SubResource("StandardMaterial3D_txxno")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_r0glx"]
+render_priority = 0
+shader = ExtResource("9_nrhn6")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/equirect_texture = ExtResource("7_sj6oo")
+shader_parameter/sphere_radius = 0.5
+
+[sub_resource type="QuadMesh" id="QuadMesh_y62m8"]
+material = SubResource("ShaderMaterial_r0glx")
 
 [sub_resource type="Environment" id="Environment_txxno"]
 background_color = Color(0.537397, 0.501212, 0.619387, 1)
@@ -144,7 +154,7 @@ text = "Sphere"
 font_size = 35
 
 [node name="TextMesh" type="MeshInstance3D" parent="Supporting point/table"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.173089, 2.10374, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.316607, 2.10374, 0)
 mesh = SubResource("TextMesh_nrhn6")
 
 [node name="Sphere" type="MeshInstance3D" parent="Supporting point"]
@@ -180,14 +190,19 @@ skeleton = NodePath("../..")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.24274, 0, 0)
 mesh = SubResource("QuadMesh_j2h5p")
 
-[node name="DrawnPattern" type="MeshInstance3D" parent="Supporting point"]
+[node name="QuadDrawnPatternTestShader" type="MeshInstance3D" parent="Supporting point"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.79169, 0, 0)
-mesh = SubResource("QuadMesh_nrhn6")
+mesh = SubResource("SphereMesh_q7rar")
 script = ExtResource("9_ln32i")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Supporting point"]
+[node name="Sphereplusdrawnpattern" type="MeshInstance3D" parent="Supporting point"]
 transform = Transform3D(0.939693, -0.34202, 0, 0.296198, 0.813798, -0.5, 0.17101, 0.469846, 0.866025, -4.71937, 0, 0)
 mesh = SubResource("SphereMesh_j2h5p")
+
+[node name="GodotShader3" type="MeshInstance3D" parent="Supporting point"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.11907, 0, 0)
+mesh = SubResource("QuadMesh_y62m8")
+script = ExtResource("13_r0glx")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.711308, 1.01344, 7.23344)
@@ -197,3 +212,39 @@ script = ExtResource("12_j2h5p")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.88719, -0.37328, 0.271213, 0.36987, 0.926763, 0.0656199, -0.275845, 0.0420964, 0.96028, -3.93667, -0.0526946, 3.91447)
 light_energy = 2.956
+
+[node name="GridContainer" type="GridContainer" parent="."]
+anchors_preset = -1
+anchor_left = 0.008
+anchor_top = 0.002
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 104.64
+offset_top = 48.84
+offset_right = -993.0
+offset_bottom = -722.0
+columns = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Scale"
+fit_content = true
+
+[node name="ScaleSlider" type="HSlider" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.1
+max_value = 5.0
+step = 0.1
+value = 1.0
+tick_count = 4
+ticks_on_borders = true
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.923, -3)
+light_size = 1.0
+
+[connection signal="mouse_entered" from="GridContainer/ScaleSlider" to="Supporting point" method="_on_scale_slider_mouse_entered"]
+[connection signal="mouse_exited" from="GridContainer/ScaleSlider" to="Supporting point" method="_on_scale_slider_mouse_exited"]
+[connection signal="value_changed" from="GridContainer/ScaleSlider" to="Supporting point/GodotShader3" method="_on_scale_slider_value_changed"]

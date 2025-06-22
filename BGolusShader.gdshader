@@ -1,7 +1,10 @@
 //Shader "Complete Sphere Impostor"
+// https://bgolus.medium.com/rendering-a-sphere-on-a-quad-13c92025570c attempted
+//port to Godot
 shader_type spatial;
 
 render_mode
+	unshaded,
 	blend_mix,
 	depth_draw_opaque,
 	cull_back,
@@ -75,7 +78,7 @@ render_mode
 					MODELVIEW_MATRIX[2].z
 				)); //MODELVIEW_MATRIX.m02_m12_m22
 
-                vec3 scale = vec3(1.0);//vec3(scalex,scaley,scalez);
+                vec3 scale = vec3(scalex,scaley,scalez);
 
                 float maxScale = max(abs(scale.x), max(abs(scale.y), abs(scale.z)));
 
@@ -205,5 +208,5 @@ render_mode
                 vec4 clipPos = VIEW_MATRIX*PROJECTION_MATRIX*(vec4(worldPos, 1.0));
 
 
-                ALBEDO=  col.rgb;
+                ALBEDO=  mix(col.rgb, Color.rgb, 0.5);
             }

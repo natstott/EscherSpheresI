@@ -5,10 +5,11 @@ var mouseisdown
 var lastangle =Vector3(0.0,0.0,0.0)
 var currentangle=Vector3(0.0,0.0,0.0)
 var startclick
+var guiInUse
 
 func _physics_process(_delta: float) -> void:
 	
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT ):
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT ) and !guiInUse:
 		var screen=get_viewport().get_visible_rect().size
 		if !mouseisdown:
 			mouseisdown=true
@@ -21,3 +22,11 @@ func _physics_process(_delta: float) -> void:
 		mouseisdown=false
 		
 	
+
+
+func _on_scale_slider_mouse_entered() -> void:
+	guiInUse=true
+
+
+func _on_scale_slider_mouse_exited() -> void:
+	guiInUse=false

@@ -8,13 +8,14 @@
 
 shader_type spatial;
 render_mode
-	blend_mix,
-	depth_draw_opaque,
-	cull_back,
-	diffuse_burley,
-	specular_schlick_ggx,
+	unshaded,
+	//blend_mix,
+	//depth_draw_opaque,
+	//cull_back,
+	//diffuse_burley,
+	//specular_schlick_ggx,
 	shadows_disabled,
-	depth_prepass_alpha;
+	//depth_prepass_alpha;
 
 /** Whether or not to use normal-based occlusion when shading. */
 uniform bool use_occlusion = false;
@@ -37,10 +38,10 @@ varying vec3 camera_ray_origin;
 
 /** Sphere size */
 varying float sp_size;
-varying mat4 mcivm; 
+varying mat4 mcivm;
 
 void vertex() {
-	
+
 	mcivm =MAIN_CAM_INV_VIEW_MATRIX;
 		mat4 mat_world = mat4(
 			MAIN_CAM_INV_VIEW_MATRIX[0],
@@ -104,7 +105,7 @@ float sphere_intersect(in vec3 ro, in vec3 rd, in vec4 sph)
 				camera_ray_origin,
 				sphere_position * sp_size,
 				sphere_size
-				
+
 			);
  */
 vec4 sphere_image(vec3 rd, vec3 ro, vec3 sp, float sp_sz)
@@ -148,7 +149,7 @@ vec4 sphere_image(vec3 rd, vec3 ro, vec3 sp, float sp_sz)
 			theta
 			)*testscaler+vec2(0.5,0.0);
 		col = texture(texture_albedo, uv).rgb;
-	
+
     }
 
 
@@ -156,7 +157,7 @@ vec4 sphere_image(vec3 rd, vec3 ro, vec3 sp, float sp_sz)
 }
 
 void fragment() {
-	
+
 	METALLIC = 0.001;
 	SPECULAR = 0.5;
 	ROUGHNESS = 0.9;
@@ -190,7 +191,7 @@ void fragment() {
 				camera_ray_origin,
 				sphere_position * sp_size,
 				sphere_size
-				
+
 			);
 		//}
 		if (col.w<0.1) discard;
